@@ -1,0 +1,217 @@
+{
+    "global": {
+        "dsn": "impala-virtual-prd",
+        "parametros_lz": {
+            "nom_proyecto": "AN0016001-modelo-propension",
+            "indice": "an0016001",
+            "data_dir": "c:/Users/daetobo/Documents/Prueba Anal\u00edtica - Lider Anal\u00edtico",
+            "zona_raw": "proceso",
+            "zona_p": "proceso",
+            "zona_r": "proceso",
+            "zona_m": "modelos",
+            "tabla_train_raw": "prueba_op_base_pivot_var_rpta_alt_enmascarado_trtest",
+            "tabla_oot_raw": "prueba_op_base_pivot_var_rpta_alt_enmascarado_oot",
+            "tabla_prob_raw": "prueba_op_probabilidad_oblig_base_hist_enmascarado_completa",
+            "tabla_customer_raw": "prueba_op_master_customer_data_enmascarado_completa",
+            "tabla_pagos_raw": "prueba_op_maestra_cuotas_pagos_mes_hist_enmascarado_completa",
+            "tabla_ingestiones_temp": "tmp_an0016001_ingestiones",
+            "tabla_features_train": "an0016001_features_train",
+            "tabla_features_score": "an0016001_features_score",
+            "fecha_num": 20260323,
+            "year": 2026,
+            "month": 3,
+            "day": 23,
+            "periodo_train": "202312",
+            "periodo_score": "202401",
+            "periodo_prob": "202312",
+            "periodo_customer": "202312",
+            "periodo_pagos": "20231231"
+        }
+    },
+    "CargaLz": {
+        "tareas": [
+            {
+                "nombre": "fn_subir_fuentes_lz",
+                "kwargs": []
+            }
+        ],
+        "data_dir": "c:/Users/daetobo/Documents/Prueba Anal\u00edtica - Lider Anal\u00edtico",
+        "modo_carga": "overwrite",
+        "archivos": [
+            {
+                "archivo": "src/loaders/prueba_op_base_pivot_var_rpta_alt_enmascarado_trtest.csv",
+                "tabla": "prueba_op_base_pivot_var_rpta_alt_enmascarado_trtest",
+                "zona": "proceso"
+            },
+            {
+                "archivo": "src/loaders/prueba_op_base_pivot_var_rpta_alt_enmascarado_oot.csv",
+                "tabla": "prueba_op_base_pivot_var_rpta_alt_enmascarado_oot",
+                "zona": "proceso"
+            },
+            {
+                "archivo": "src/loaders/prueba_op_probabilidad_oblig_base_hist_enmascarado_completa.csv",
+                "tabla": "prueba_op_probabilidad_oblig_base_hist_enmascarado_completa",
+                "zona": "proceso"
+            },
+            {
+                "archivo": "src/loaders/prueba_op_master_customer_data_enmascarado_completa.csv",
+                "tabla": "prueba_op_master_customer_data_enmascarado_completa",
+                "zona": "proceso"
+            },
+            {
+                "archivo": "src/loaders/prueba_op_maestra_cuotas_pagos_mes_hist_enmascarado_completa.csv",
+                "tabla": "prueba_op_maestra_cuotas_pagos_mes_hist_enmascarado_completa",
+                "zona": "proceso"
+            },
+            {
+                "archivo": "sample_submission.csv",
+                "tabla": "sample_submission",
+                "zona": "proceso"
+            }
+        ]
+    },
+    "Preprocesador": {
+        "tareas": [
+            {
+                "nombre": "fn_leer_parametros",
+                "kwargs": []
+            },
+            {
+                "nombre": "fn_consultar_ingestiones",
+                "kwargs": []
+            },
+            {
+                "nombre": "fn_guardar_ingestiones",
+                "kwargs": []
+            }
+        ],
+        "ingestiones": {
+            "base_trtest": {
+                "id_tabla": 1,
+                "zona": "{zona_raw}",
+                "tabla_fuente": "{tabla_train_raw}",
+                "campos": {
+                    "periodo_train": "fecha_var_rpta_alt"
+                }
+            },
+            "base_oot": {
+                "id_tabla": 2,
+                "zona": "{zona_raw}",
+                "tabla_fuente": "{tabla_oot_raw}",
+                "campos": {
+                    "periodo_score": "fecha_var_rpta_alt"
+                }
+            },
+            "prob_hist": {
+                "id_tabla": 3,
+                "zona": "{zona_raw}",
+                "tabla_fuente": "{tabla_prob_raw}",
+                "campos": {
+                    "periodo_prob": "fecha_corte"
+                }
+            },
+            "master_customer": {
+                "id_tabla": 4,
+                "zona": "{zona_raw}",
+                "tabla_fuente": "{tabla_customer_raw}",
+                "campos": {
+                    "periodo_customer": "concat(cast(year as string), lpad(cast(month as string), 2, '0'))"
+                }
+            },
+            "pagos_hist": {
+                "id_tabla": 5,
+                "zona": "{zona_raw}",
+                "tabla_fuente": "{tabla_pagos_raw}",
+                "campos": {
+                    "periodo_pagos": "fecha_corte"
+                }
+            }
+        }
+    },
+    "Etl": {
+        "tareas": [
+            {
+                "nombre": "fn_validar_ingestiones",
+                "kwargs": []
+            },
+            {
+                "nombre": "fn_ejecutar_etl",
+                "kwargs": []
+            }
+        ],
+        "archivos": [
+            "etl/0_features_train.sql",
+            "etl/1_features_score.sql"
+        ]
+    },
+    "Modelo": {
+        "tareas": [
+            {
+                "nombre": "fc_training",
+                "kwargs": []
+            },
+            {
+                "nombre": "fc_predecir",
+                "kwargs": []
+            }
+        ],
+        "archivos": [
+            "model/001_training_base.sql",
+            "model/002_scoring_base.sql",
+            "model/003_payments_hist.sql",
+            "model/004_customer_hist.sql",
+            "model/005_scores_hist.sql"
+        ],
+        "entrenar_modelo": true,
+        "predecir_modelo": true,
+        "dia_entrenamiento": null,
+        "nombre_modelo": "modelo_propension.pkl",
+        "nombre_columnas": "columnas_modelo.csv",
+        "target_col": "var_rpta_alt",
+        "id_col": "id",
+        "id_columns": [
+            "nit_enmascarado",
+            "num_oblig_orig_enmascarado",
+            "num_oblig_enmascarado"
+        ],
+        "date_col": "fecha_var_rpta_alt",
+        "validation_periods": 1,
+        "random_state": 42,
+        "threshold_min": 0.1,
+        "threshold_max": 0.9,
+        "threshold_step": 0.02,
+        "lightgbm_params": {
+            "n_estimators": 700,
+            "max_depth": 6,
+            "num_leaves": 47,
+            "learning_rate": 0.04,
+            "subsample": 0.8,
+            "subsample_freq": 1,
+            "colsample_bytree": 0.75,
+            "min_child_samples": 60,
+            "reg_alpha": 0.05,
+            "reg_lambda": 1.5,
+            "n_jobs": -1,
+            "random_state": 42,
+            "verbose": -1
+        },
+        "fallback_xgb_params": {
+            "n_estimators": 500,
+            "max_depth": 5,
+            "learning_rate": 0.04,
+            "subsample": 0.8,
+            "colsample_bytree": 0.75,
+            "min_child_weight": 50,
+            "reg_alpha": 0.05,
+            "reg_lambda": 1.5,
+            "n_jobs": -1,
+            "eval_metric": "logloss",
+            "random_state": 42,
+            "verbosity": 0
+        },
+        "name_tablas": {
+            "predic": "an0016001_resultado_modelo_propension",
+            "metricas": "an0016001_metricas_modelo_propension"
+        }
+    }
+}

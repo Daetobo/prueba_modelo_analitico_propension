@@ -1,0 +1,21 @@
+# EditorConfig is awesome: https://EditorConfig.org
+
+# top-most EditorConfig file
+root = true
+
+# Set default all files
+[*]
+charset = utf-8
+indent_style = space
+trim_trailing_whitespace = true
+insert_final_newline = true
+
+# Python files
+[*.py]
+indent_size = 4
+max_line_length = 69
+
+# Markdown files
+[*.md]
+max_line_length = off
+trim_trailing_whitespace = false

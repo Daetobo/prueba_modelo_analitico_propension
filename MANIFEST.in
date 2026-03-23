@@ -1,0 +1,4 @@
+include src/an0016001_modelo_propension/static/*.json
+recursive-include src/an0016001_modelo_propension/static/sql *.sql
+include versioneer.py
+include src/an0016001_modelo_propension/_version.py
